@@ -6,6 +6,21 @@
 #include <libopencm3/stm32/gpio.h>
 
 
+//	Delay function supplied by Kristian Nielsen(knielsen)
+static void delay(uint32_t nCount)
+{
+  // This should be 4 cycles per iteration. nCount must be > 0.
+  __asm volatile
+    ("\n"
+	 ".syntax unified\n\t"
+     "0:\n\t"
+     "subs %1, #1\n\t"
+     "bne 0b"
+     : "=l" (nCount)
+     : "0" (nCount)
+     : "cc");
+}
+
 int main(void)
 {
 	rcc_clock_setup_in_hsi48_out_48mhz();
