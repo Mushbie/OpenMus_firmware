@@ -5,6 +5,8 @@
 #include <libopencm3/stm32/syscfg.h>
 #include <libopencm3/stm32/gpio.h>
 
+#include "usb.c"
+
 
 //	Delay function supplied by Kristian Nielsen(knielsen)
 static void delay(uint32_t nCount)
