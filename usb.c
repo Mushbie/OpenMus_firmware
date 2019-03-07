@@ -1,6 +1,7 @@
 
-
 #include <libopencm3/usb/usbstd.h>
+#include <libopencm3/usb/usbd.h>
+#include <libopencm3/usb/hid.h>
 
 const struct usb_device_descriptor devDescriptor = {
 	.bLength = USB_DT_DEVICE_SIZE,
@@ -54,13 +55,27 @@ const struct usb_device_descriptor devDescriptor = {
 	0xc0        /* END_COLLECTION                       */
 };
 
-const struct {
-	struct usb_hid_desciptor hidDescriptor;
+struct hidFunctionDescriptor {
+	struct usb_hid_descriptor hidDescriptor;
 	struct {
-		uint8_t 	reportDescriptorType;
+		uint8_t		reportDescriptorType;
 		uint16_t	descriptorLength;
 	} __attribute__((packed)) hidReport;
-} __attribute__((packed)) // CONTINUE HERE!!
+} __attribute__((packed));
+
+const struct hidFunctionDescriptor hidFunction = {
+	.hidDescriptor = {
+		.bLength = sizeof(hidFunction),
+		.bDescriptorType = USB_DT_HID,
+		.bcdHID = 0x0100,
+		.bCountryCode = 0,
+		.bNumDescriptors = 1
+	},
+	.hidReport = {
+		.reportDescriptorType = USB_DT_REPORT,
+		.descriptorLength = sizeof(hidReportDescriptor)
+	}
+};
 
 const char *usbStrings[] = {
 	"Mushbie Technologies",
@@ -77,7 +92,7 @@ const struct usb_endpoint_descriptor hidEndpoint = {
 	.bInterval = 0x01,
 };
 
-const struct usb_interface_descriptor hid_iface = {
+const struct usb_interface_descriptor hidInterface = {
 	.bLength = USB_DT_INTERFACE_SIZE,
 	.bDescriptorType = USB_DT_INTERFACE,
 	.bInterfaceNumber = 0,
@@ -90,6 +105,26 @@ const struct usb_interface_descriptor hid_iface = {
 
 	.endpoint = &hidEndpoint,
 
-	.extra = &hid_function,
-	.extralen = sizeof(hid_function),
+	.extra = &hidFunction,
+	.extralen = sizeof(hidFunction),
 };
+
+const struct usb_interface interfaces[] = {
+	{
+		.num_altsetting = 1,
+		.altsetting = &hidInterface
+	}
+};
+
+const struct usb_config_descriptor config = {
+	.bLength = USB_DT_CONFIGURATION_SIZE,
+	.bDescriptorType = USB_DT_CONFIGURATION,
+	.wTotalLength = 0,
+	.bNumInterfaces = 1,
+	.bConfigurationValue = 1,
+	.iConfiguration = 0,
+	.bmAttributes = 0xA0,
+	.bMaxPower = 0x64,
+	.interface = interfaces,
+};
+
