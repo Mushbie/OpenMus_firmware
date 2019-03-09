@@ -128,3 +128,11 @@ const struct usb_config_descriptor config = {
 	.interface = interfaces,
 };
 
+/* Callback handler for HID, one of the worst documented parts of libopencm3 */
+enum usbd_request_return_codes hidRequestHandler(usbd_device *device, struct usbd_setup_data *request, uint8_t **buffer,
+		uint16_t *length, void(**complete)(usbd_device *device, struct usb_setup_data *request))
+{
+	(void)complete; // Tell the compiler that these are not used
+	(void)device;
+	
+}
