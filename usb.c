@@ -132,7 +132,27 @@ const struct usb_config_descriptor config = {
 enum usbd_request_return_codes hidRequestHandler(usbd_device *device, struct usbd_setup_data *request, uint8_t **buffer,
 		uint16_t *length, void(**complete)(usbd_device *device, struct usb_setup_data *request))
 {
-	(void)complete; // Tell the compiler that these are not used
-	(void)device;
+	(void)device;	// Tell the compiler that these are not used
+	(void)complete;
 	
+	if((request->bmRequest == 0x81) || (request->bRequest == USB_REQ_GET_DESRIPTOR) || (request->wValue == 0x2200))
+	{
+		// Handle the HID report descriptor request
+		*buffer = (uint8_t *)hidReportDescriptor;
+		*length = sizeof(hidReportDescriptor);
+		return USBD_REQ_HANDLED;
+	}
+	return USBD_REQ_NOTSUPP;
+}
+
+void hidSetConfig(usbd_device *device, uint16_t wValue)
+{
+	//(void)device;	// Tell the compiler that these are not used
+	(void)wValue;
+	
+	usbd_ep_setup(device, 0x81, USB_ENDPOINT_ATTR_INTERRUPT, 4, NULL);
+	
+	usbd_register_control_callback(device, USB_REQ_TYPE_STANDARD | USB_REQ_TYPE_INTERFACE, USB_REQ_TYPE_TYPE | USB_REQ_TYPE_RECIPIENT, hidRequestHandler);
+	
+	// Setup the systick here
 }
