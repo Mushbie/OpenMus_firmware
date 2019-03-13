@@ -1,7 +1,9 @@
 
+#include <stddef.h>
 #include <libopencm3/usb/usbstd.h>
 #include <libopencm3/usb/usbd.h>
 #include <libopencm3/usb/hid.h>
+#include <libopencm3/cm3/systick.h>
 
 const struct usb_device_descriptor devDescriptor = {
 	.bLength = USB_DT_DEVICE_SIZE,
@@ -129,13 +131,13 @@ const struct usb_config_descriptor config = {
 };
 
 /* Callback handler for HID, one of the worst documented parts of libopencm3 */
-enum usbd_request_return_codes hidRequestHandler(usbd_device *device, struct usbd_setup_data *request, uint8_t **buffer,
+enum usbd_request_return_codes hidRequestHandler(usbd_device *device, struct usb_setup_data *request, uint8_t **buffer,
 		uint16_t *length, void(**complete)(usbd_device *device, struct usb_setup_data *request))
 {
 	(void)device;	// Tell the compiler that these are not used
 	(void)complete;
 	
-	if((request->bmRequest == 0x81) || (request->bRequest == USB_REQ_GET_DESRIPTOR) || (request->wValue == 0x2200))
+	if((request->bmRequestType == 0x81) || (request->bRequest == USB_REQ_GET_DESCRIPTOR) || (request->wValue == 0x2200))
 	{
 		// Handle the HID report descriptor request
 		*buffer = (uint8_t *)hidReportDescriptor;
@@ -150,9 +152,13 @@ void hidSetConfig(usbd_device *device, uint16_t wValue)
 	//(void)device;	// Tell the compiler that these are not used
 	(void)wValue;
 	
-	usbd_ep_setup(device, 0x81, USB_ENDPOINT_ATTR_INTERRUPT, 4, NULL);
+	usbd_ep_setup(device, 0x81, USB_ENDPOINT_ATTR_INTERRUPT, 16, NULL);
 	
 	usbd_register_control_callback(device, USB_REQ_TYPE_STANDARD | USB_REQ_TYPE_INTERFACE, USB_REQ_TYPE_TYPE | USB_REQ_TYPE_RECIPIENT, hidRequestHandler);
 	
 	// Setup the systick here
+	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
+	systick_set_reload(48000);	// set to trigger once every milliSecond 
+	systick_interrupt_enable();
+	systick_counter_enable();
 }
