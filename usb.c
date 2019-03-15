@@ -80,9 +80,8 @@ const struct hidFunctionDescriptor hidFunction = {
 };
 
 const char *usbStrings[] = {
-	"Mushbie Technologies",
-	"Dank Mouse",
-	"DEMO",
+	"OpenMus Project",
+	"OpenMus Mouse",
 };
 
 const struct usb_endpoint_descriptor hidEndpoint = {
