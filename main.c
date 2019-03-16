@@ -1,9 +1,11 @@
 //	TODO: Put license here
 
+#include <stdlib.h>
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/crs.h>
 #include <libopencm3/stm32/syscfg.h>
 #include <libopencm3/stm32/gpio.h>
+#include <libopencm3/stm32/spi.h>
 #include <libopencm3/cm3/systick.h>
 
 #include "usb.c"

@@ -1,5 +1,5 @@
 
-#include <stddef.h>
+#include <stdlib.h>
 #include <libopencm3/usb/usbstd.h>
 #include <libopencm3/usb/usbd.h>
 #include <libopencm3/usb/hid.h>
